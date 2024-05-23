@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -30,6 +31,8 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     private var step by mutableStateOf(0)   // 步数
     private var stepCount by mutableStateOf(0)  // 总共步数
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mSensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
@@ -38,6 +41,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
             StepCounterTheme {
                 Surface {
                     StepCounterScreen(step = step, stepCount = stepCount)
+                    CircularProgress()
                 }
             }
         }
@@ -99,27 +103,7 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     }
 }
 
-//class CircularTransitionData(
-//    progress: State<Float>,
-//    color: State<Color>
-//) {
-//    val progress by progress
-//    val color by color
-//}
 
-//@Composable
-//fun CircularProgress(
-//    transitionData: CircularTransitionData,
-//    modifier: Modifier = Modifier
-//) {
-//    Canvas(
-//        modifier = modifier
-//            .fillMaxWidth()
-//            .requiredHeight(200.dp)
-//    ) {
-//
-//    }
-//}
 
 @Composable
 fun StepCounterScreen(step: Int, stepCount: Int){
@@ -129,13 +113,13 @@ fun StepCounterScreen(step: Int, stepCount: Int){
         Text(text = "当前走路 $step 步")
         Text(text = "Total $stepCount step today")
     }
-
 }
+
+
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    StepCounterTheme {
-        StepCounterScreen(step = 0, stepCount = 0)
-    }
+    StepCounterScreen(step = 0, stepCount = 0)
+    CircularProgress()
 }
