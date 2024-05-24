@@ -10,7 +10,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 
-class SensorHandler(context: Context): SensorEventListener {
+/**
+ *  This class represents a sensor handler that listens to step counter and step detector sensors.
+ *
+ *  @param context The application context.
+ *  @param viewModel The view model to update step information.
+ *  @property step The number of steps taken since the last reset.
+ *  @property stepCount The total number of steps taken by the user.
+ *  @author Hugo
+ *  @since 1.0
+ */
+class SensorHandler(context: Context, private val viewModel: StepViewModel): SensorEventListener {
     private val mSensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager  // 传感器管理器
     private lateinit var mStepCounter: Sensor   // 计步传感器
     private lateinit var mStepDetector: Sensor  // 检测传感器
@@ -33,6 +43,9 @@ class SensorHandler(context: Context): SensorEventListener {
 
     }
 
+    /**
+     * 为 step counter 和 step detector 注册监听器
+     */
     fun registerListener(){
         // 注册监听器
         mSensorManager.registerListener(
@@ -62,10 +75,12 @@ class SensorHandler(context: Context): SensorEventListener {
             Sensor.TYPE_STEP_DETECTOR -> {
                 if (event.values[0] == 1.0f) {
                     step++
+                    viewModel.updateStep()
                 }
             }
             Sensor.TYPE_STEP_COUNTER -> {
                 stepCount = event.values[0].toInt()
+                viewModel.updateStepCount(event.values[0].toInt())
             }
         }
     }

@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,13 +31,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sensorHandler = SensorHandler(this)
+        val stepViewModel = StepViewModel() // 创建ViewModel，保存了 step、stepCount、moveTarget
+        sensorHandler = SensorHandler(this, stepViewModel)
         enableEdgeToEdge()
         setContent {
             StepCounterTheme {
                 Surface {
-                    StepCounterScreen(step = sensorHandler.step, stepCount = sensorHandler.stepCount)
-                    CircularProgress(viewModel = StepViewModel())
+                    StepCounterScreen(viewModel =stepViewModel)
+                    CircularProgress(viewModel = stepViewModel)
                 }
             }
         }
@@ -45,28 +47,36 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         Log.i("onResume", "onResume: ")
-        sensorHandler.registerListener()
+        sensorHandler.registerListener()    // 注册监听
     }
 
     override fun onPause() {
         super.onPause()
-        sensorHandler.unregisterListener()
+        sensorHandler.unregisterListener()  // 取消监听
     }
 }
 
 @Composable
-fun StepCounterScreen(step: Int, stepCount: Int){
+fun StepCounterScreen(viewModel: StepViewModel = StepViewModel()){
+    // 获取数据
+    val stepState by viewModel.stepState.collectAsState()
+
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(32.dp)) {
-        Text(text = "当前走路 $step 步")
-        Text(text = "Total $stepCount step today")
+        Text(text = "当前走路 ${stepState.step} 步")
+        Text(text = "Total ${stepState.stepCount} step today")
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    StepCounterScreen(step = 12, stepCount = 1000)
-    CircularProgress(viewModel = StepViewModel())
+fun AppPreview() {
+    // 在 Preview 中使用 viewModel 需要添加 remember
+    StepCounterScreen(remember {
+        StepViewModel()
+    })
+    CircularProgress(viewModel = remember {
+        StepViewModel()
+    })
 }
