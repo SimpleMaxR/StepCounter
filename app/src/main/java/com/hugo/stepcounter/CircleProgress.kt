@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.inset
 
-val CIRCULAR_TIMER_RADIUS = 300f
+val CIRCULAR_TIMER_RADIUS = 500f
 
 
 @SuppressLint("UnrememberedMutableState")
