@@ -1,4 +1,4 @@
 # StepCounter
 
-![screenshot](./ReadmeSource/MainActivity_screenshot.jpg)
+![screenshot](./ReadmeSource/MainActivity.jpg)
 
