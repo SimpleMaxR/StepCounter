@@ -17,10 +17,18 @@ class StepViewModel: ViewModel() {
     val stepState: StateFlow<StepUiState> = _stepState.asStateFlow()
 
 
+    fun updateMoveTarget(moveTarget: Int) {
+        _stepState.value = _stepState.value.copy(moveTarget = moveTarget)
+    }
+
 
     fun updateStep() {
         _stepState.value = _stepState.value.copy(step = _stepState.value.step + 1)
         Log.i("ViewModel", "updateStep to ${_stepState.value.step}")
+    }
+
+    fun resetStep() {
+        _stepState.value = _stepState.value.copy(step = 0)
     }
 
     fun updateStepCount(stepCount: Int) {

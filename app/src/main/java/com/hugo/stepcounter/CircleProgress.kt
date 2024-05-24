@@ -1,11 +1,17 @@
 package com.hugo.stepcounter
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -24,11 +30,16 @@ fun CircularProgress(
     val stepCount = viewModel.stepState.collectAsState().value.stepCount
     val step = viewModel.stepState.collectAsState().value.step
     val moveTarget = viewModel.stepState.collectAsState().value.moveTarget
-    val progress = if (moveTarget == 0) {
+    val _progress = if (moveTarget == 0) {
         0f
     } else {
-        (step.toFloat() / moveTarget.toFloat()) * 360f
+        maxOf(0.0001f, (step.toFloat() / moveTarget.toFloat()) * 360f)
     }
+
+    val progress by animateFloatAsState(_progress, animationSpec = spring(
+        dampingRatio = Spring.DampingRatioMediumBouncy,
+        stiffness = Spring.StiffnessLow
+    ))
 
     val color:Color = when {
             progress < 180f -> Color.Red
