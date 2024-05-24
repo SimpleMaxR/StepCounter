@@ -28,12 +28,15 @@ class CircularTransitionData(
 
 @Composable
 fun CircularProgress(
+    modifier: Modifier = Modifier,
     transitionData: CircularTransitionData = CircularTransitionData(
         progress = mutableStateOf(100f),
         color = mutableStateOf(Color.Red)
     ),
-    modifier: Modifier = Modifier
+    viewModel: StepViewModel
 ) {
+
+
     Canvas(
         modifier = modifier
             .fillMaxWidth()

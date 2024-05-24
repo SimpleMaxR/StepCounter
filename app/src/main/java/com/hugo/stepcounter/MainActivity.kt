@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -24,24 +25,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hugo.stepcounter.ui.theme.StepCounterTheme
 
-class MainActivity : ComponentActivity(), SensorEventListener {
-    private lateinit var mSensorManager: SensorManager  // 传感器管理器
-    private lateinit var mStepCounter: Sensor   // 计步传感器
-    private lateinit var mStepDetector: Sensor  // 检测传感器
-    private var step by mutableStateOf(0)   // 步数
-    private var stepCount by mutableStateOf(0)  // 总共步数
-
-
+class MainActivity : ComponentActivity() {
+    private lateinit var sensorHandler: SensorHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mSensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        sensorHandler = SensorHandler(this)
         enableEdgeToEdge()
         setContent {
             StepCounterTheme {
                 Surface {
-                    StepCounterScreen(step = step, stepCount = stepCount)
-                    CircularProgress()
+                    StepCounterScreen(step = sensorHandler.step, stepCount = sensorHandler.stepCount)
+                    CircularProgress(viewModel = StepViewModel())
                 }
             }
         }
@@ -50,60 +45,14 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     override fun onResume() {
         super.onResume()
         Log.i("onResume", "onResume: ")
-
-        // 获取传感器
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) != null) {
-            mStepCounter = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)!!
-        } else {
-            Log.e("onResume", "onResume: 没有找到传感器 stepCounter")
-        }
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null) {
-            mStepDetector = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)!!
-        } else {
-            Log.e("onResume", "onResume: 没有找到传感器 stepDetector")
-        }
-
-        // 注册监听器
-        mSensorManager.registerListener(
-            this,
-            mStepCounter,
-            SensorManager.SENSOR_DELAY_NORMAL
-        )
-        mSensorManager.registerListener(
-            this,
-            mStepDetector,
-            SensorManager.SENSOR_DELAY_NORMAL
-        )
+        sensorHandler.registerListener()
     }
 
     override fun onPause() {
         super.onPause()
-        // 取消监听
-        mSensorManager.unregisterListener(this)
-    }
-
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        Log.i("onAccuracyChanged", "onAccuracyChanged: $accuracy")
-    }
-
-    // onSensorChanged 传感器数据变化
-    override fun onSensorChanged(event: SensorEvent?) {
-        Log.i("onSensorChanged", "onSensorChanged: ")
-        // 针对不同的传感器类型做不同的处理
-        when (event?.sensor?.type) {
-            Sensor.TYPE_STEP_DETECTOR -> {
-                if (event.values[0] == 1.0f) {
-                    step++
-                }
-            }
-            Sensor.TYPE_STEP_COUNTER -> {
-                stepCount = event.values[0].toInt()
-            }
-        }
+        sensorHandler.unregisterListener()
     }
 }
-
-
 
 @Composable
 fun StepCounterScreen(step: Int, stepCount: Int){
@@ -115,11 +64,9 @@ fun StepCounterScreen(step: Int, stepCount: Int){
     }
 }
 
-
-
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    StepCounterScreen(step = 0, stepCount = 0)
-    CircularProgress()
+    StepCounterScreen(step = 12, stepCount = 1000)
+    CircularProgress(viewModel = StepViewModel())
 }
