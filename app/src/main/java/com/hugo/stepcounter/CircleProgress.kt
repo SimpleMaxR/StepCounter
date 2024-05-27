@@ -21,23 +21,23 @@ import androidx.compose.ui.graphics.drawscope.inset
 val CIRCULAR_TIMER_RADIUS = 500f
 
 
-@SuppressLint("UnrememberedMutableState")
 @Composable
 fun CircularProgress(
     modifier: Modifier = Modifier,
     viewModel: StepViewModel
 ) {
-    val stepCount = viewModel.stepState.collectAsState().value.stepCount
-    val step = viewModel.stepState.collectAsState().value.step
-    val moveTarget = viewModel.stepState.collectAsState().value.moveTarget
+    val stepState = viewModel.stepState.collectAsState()
+    val step = stepState.value.step
+    val moveTarget = stepState.value.moveTarget
+    //  _progress 圆环进度
     val _progress = if (moveTarget == 0) {
         0f
     } else {
         maxOf(0.0001f, (step.toFloat() / moveTarget.toFloat()) * 360f)
     }
-
+    // 动画值
     val progress by animateFloatAsState(_progress, animationSpec = spring(
-        dampingRatio = Spring.DampingRatioMediumBouncy,
+        dampingRatio = Spring.DampingRatioNoBouncy,
         stiffness = Spring.StiffnessLow
     ))
 
@@ -45,7 +45,7 @@ fun CircularProgress(
             progress < 180f -> Color.Red
             progress < 360f -> Color.Yellow
             else -> Color.Green
-        }
+    }
 
 
     Canvas(

@@ -38,13 +38,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val stepViewModel = StepViewModel() // 创建ViewModel，保存了 step、stepCount、moveTarget
-        sensorHandler = SensorHandler(this, stepViewModel)
+        val stepViewModel = StepViewModel() // 创建ViewModel，保存 step、stepCount、moveTarget
+        sensorHandler = SensorHandler(this, stepViewModel) // sensorHandler 包含传感器相关信息和操作
         enableEdgeToEdge()
         setContent {
             StepCounterTheme {
                 Surface {
-                    StepCounterApp(viewModel = stepViewModel)
+                    StepCounterApp(viewModel = stepViewModel) // 全局使用同一个 viewModel
                 }
             }
         }
@@ -71,6 +71,8 @@ fun StepCounterScreen(viewModel: StepViewModel = StepViewModel()){
         .padding(32.dp),
     ) {
         val textState = remember { mutableStateOf(TextFieldValue(stepState.moveTarget.toString())) }
+
+        // 目标步数输入框
         OutlinedTextField(
             value = textState.value,
             onValueChange = { newValue ->
@@ -86,6 +88,8 @@ fun StepCounterScreen(viewModel: StepViewModel = StepViewModel()){
             label = {
                 Text(text = "请输入目标步数")
             })
+
+        // debug 按钮
         Text(text = "Button for Test ⬇️", color = Color.Red)
         Button(onClick = { viewModel.updateStep() }) {
             Text(text = "Increase step")
@@ -99,15 +103,16 @@ fun StepCounterScreen(viewModel: StepViewModel = StepViewModel()){
 
 @Composable
 fun StepCountDashboard(modifier: Modifier = Modifier, viewModel: StepViewModel = StepViewModel()) {
-    // 获取数据
+    // 从 viewModel 获取数据
     val stepState by viewModel.stepState.collectAsState()
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "当前走路 ${stepState.step} 步", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
-        Text(text = "重启后共走路 ${stepState.stepCount} 步", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
+        // 展示在圆环中心的文字
+        Text(text = "当前走了 ${stepState.step} 步", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
+        Text(text = "一共走了 ${stepState.stepCount} 步", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
         if (stepState.moveTarget != 0) {
             Text(text = "当前进度 ${stepState.step * 100 / stepState.moveTarget}%")
         }
@@ -119,9 +124,8 @@ fun StepCounterApp(modifier: Modifier = Modifier, viewModel: StepViewModel) {
     Box(modifier = Modifier) {
         StepCounterScreen(viewModel)
         StepCountDashboard(Modifier.fillMaxSize(), viewModel)
-
     }
-    CircularProgress(viewModel = viewModel,)
+    CircularProgress(viewModel = viewModel)
 }
 
 @Preview(showBackground = true, widthDp = 420, heightDp = 915)
